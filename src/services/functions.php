@@ -1,0 +1,320 @@
+<?php
+
+// # PEGAR DA API O JSON:
+function jsonDecode($url){
+    $ch = curl_init($url);
+
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    $response = curl_exec($ch);
+
+    curl_close($ch);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        echo "Erro na decodificação JSON: " . json_last_error_msg();
+        exit;
+    }
+
+    return json_decode($response, true);
+}
+function getPlayer(){
+    $url = "http://localhost:3000/player";
+    return jsonDecode($url); 
+}
+function getSingleMatch(){
+    $url = "http://localhost:3000/single";
+    return jsonDecode($url); 
+}
+function getDuoMatch(){
+    $url = "http://localhost:3000/duoMatch";
+    return jsonDecode($url); 
+}
+
+// # ALGORITIMOS DE CRIAR PARTIDAS [SINGLE/DUO]  
+function createSingleMatch(){
+    $data = getSingleMatch();
+
+    class Leaderboard
+    {
+        public $name;
+        public $games_played;
+        public $victories;
+        public $loses;
+        public $win_rate;
+
+        public function __construct($name, $games_played, $victories, $loses, $win_rate)
+        {
+            $this->name = $name;
+            $this->games_played = $games_played;
+            $this->victories = $victories;
+            $this->loses = $loses;
+            $this->win_rate = $win_rate;
+        }
+    }
+
+    foreach ($data['singleMatch'] as $match) {
+        $playerOneId = $match['player_one_id'];
+        $playerTwoId = $match['player_two_id'];
+        $playerOneName = $match['player_one']['name'];
+        $playerTwoName = $match['player_two']['name'];
+        $result = $match['result'];
+
+        // Inicializa os jogadores se não existirem
+        if (!isset($playersStats[$playerOneId])) {
+            $playersStats[$playerOneId] = [
+                'name' => $playerOneName,
+                'games_played' => 0,
+                'victories' => 0,
+                'loses' => 0
+            ];
+        }
+
+        if (!isset($playersStats[$playerTwoId])) {
+            $playersStats[$playerTwoId] = [
+                'name' => $playerTwoName,
+                'games_played' => 0,
+                'victories' => 0,
+                'loses' => 0
+            ];
+        }
+
+        // Atualiza as estatísticas
+        $playersStats[$playerOneId]['games_played']++;
+        $playersStats[$playerTwoId]['games_played']++;
+
+        if ($result === $playerOneId) {
+            $playersStats[$playerOneId]['victories']++;
+            $playersStats[$playerTwoId]['loses']++;
+        } else {
+            $playersStats[$playerTwoId]['victories']++;
+            $playersStats[$playerOneId]['loses']++;
+        }
+    }
+
+    // Criando os objetos Leaderboard
+    $leaderboard = [];
+    foreach ($playersStats as $stats) {
+        $win_rate = $stats['games_played'] > 0 ? ($stats['victories'] / $stats['games_played']) * 100 : 0;
+        $leaderboard[] = new Leaderboard($stats['name'], $stats['games_played'], $stats['victories'], $stats['loses'], $win_rate);
+    }
+
+    return $leaderboard;
+}
+
+function createDuoMatch(){
+    $data = getDuoMatch();
+
+
+    class Duos
+    {
+        public $name1;
+        public $name2;
+        public $games_played;
+        public $victories;
+        public $loses;
+        public $win_rate;
+
+        public function __construct($name1, $name2, $games_played, $victories, $loses, $win_rate)
+        {
+            $this->name1 = $name1;
+            $this->name2 = $name2;
+            $this->games_played = $games_played;
+            $this->victories = $victories;
+            $this->loses = $loses;
+            $this->win_rate = $win_rate;
+        }
+    }
+
+    foreach ($data['duoMatch'] as $duoMatch) {
+
+        $playerOneName = $duoMatch['duo_player']['player_one']['name'];
+        $playerTwoName = $duoMatch['duo_player']['player_two']['name'];
+        $duoOneId = $duoMatch['duo_one_id'];
+
+        $playerThreeName = $duoMatch['duo_player_two']['player_one']['name'];
+        $playerFourName = $duoMatch['duo_player_two']['player_two']['name'];
+        $duoTwoId = $duoMatch['duo_two_id'];
+
+        $result = $duoMatch['result'];
+
+
+        // Inicializa os duos se não existirem
+        if (!isset($duoStats[$duoOneId])) {
+            $duoStats[$duoOneId] = [
+                'name1' => $playerOneName,
+                'name2' => $playerTwoName,
+                'games_played' => 0,
+                'victories' => 0,
+                'loses' => 0
+            ];
+        }
+        if (!isset($duoStats[$duoTwoId])) {
+            $duoStats[$duoTwoId] = [
+                'name1' => $playerThreeName,
+                'name2' => $playerFourName,
+                'games_played' => 0,
+                'victories' => 0,
+                'loses' => 0
+            ];
+        }
+
+        // Atualiza as estatísticas
+        $duoStats[$duoOneId]['games_played']++;
+        $duoStats[$duoTwoId]['games_played']++;
+
+        if ($result === $duoOneId) {
+            $duoStats[$duoOneId]['victories']++;
+            $duoStats[$duoTwoId]['loses']++;
+        } else {
+            $duoStats[$duoTwoId]['victories']++;
+            $duoStats[$duoOneId]['loses']++;
+        }
+    }
+
+    $Duos = [];
+
+    foreach ($duoStats as $stats) {
+        //calcular winrate
+        $win_rate = $stats['games_played'] > 0 ? ($stats['victories'] / $stats['games_played']) * 100 : 0;
+
+        //objeto Duos
+        $Duos[] = new Duos($stats['name1'], $stats['name2'], $stats['games_played'], $stats['victories'], $stats['loses'], $win_rate);
+    }
+
+    return $Duos;
+}
+
+// # ALGORITIMO DE EXIBIR ESTATÍSTICAS
+function getWinRateGeral(){
+    $data = getPlayer();
+
+    $leaderboard = createSingleMatch();
+    $Duos = createDuoMatch();
+
+
+    class PlayerGeral{
+        public $name;
+        public $games_played;
+        public $victories;
+        public $win_rate;
+
+        public function __construct($name, $games_played, $victories, $win_rate)
+        {
+            $this->name = $name;
+            $this->games_played = $games_played;
+            $this->victories = $victories;
+            $this->win_rate = $win_rate;
+        }
+    }
+
+    $playersStats = [];
+
+    foreach ($data['players'] as $player) {
+        foreach ($leaderboard as $singleMatch) {
+            if ($player['name'] == $singleMatch->name) {
+                if (empty($playersStats)) {
+                    $playersStats[] = new PlayerGeral(
+                        $player['name'],
+                        $singleMatch->games_played,
+                        $singleMatch->victories,
+                        ($singleMatch->victories / $singleMatch->games_played) * 100
+                    );
+                } else {
+
+                    //  BUSCAR SE JA EXISTE UM OBJETO DELE
+
+                    $busca = $player['name'];
+
+                    $resultado = array_filter($playersStats, function ($player) use ($busca) {
+                        return $player->name === $busca;
+                    });
+
+                    if (empty($resultado)) {
+                        $playersStats[] = new PlayerGeral(
+                            $player['name'],
+                            $singleMatch->games_played,
+                            $singleMatch->victories,
+                            ($singleMatch->victories / $singleMatch->games_played) * 100
+                        );
+                    }
+                }
+            }
+        }
+
+        foreach ($Duos as $duoMatch) {
+
+            if ($player['name'] == $duoMatch->name1) {
+                if (empty($playersStats)) {
+                    $playersStats[] = new PlayerGeral(
+                        $player['name'],
+                        $singleMatch->games_played,
+                        $singleMatch->victories,
+                        ($singleMatch->victories / $singleMatch->games_played) * 100
+                    );
+                } else {
+
+                    //  BUSCAR SE JA EXISTE UM OBJETO DELE
+
+                    $busca = $player['name'];
+
+                    $resultado = array_filter($playersStats, function ($player) use ($busca) {
+                        return $player->name === $busca;
+                    });
+
+
+
+
+                    if (empty($resultado)) {
+                        $playersStats[] = new PlayerGeral(
+                            $player['name'],
+                            $singleMatch->games_played,
+                            $singleMatch->victories,
+                            ($singleMatch->victories / $singleMatch->games_played) * 100
+                        );
+                    } else {
+                        $player_encontrado = reset($resultado);
+                        $player_encontrado->games_played += $duoMatch->games_played;
+                        $player_encontrado->victories += $duoMatch->victories;
+                        $player_encontrado->win_rate = ($player_encontrado->victories / $player_encontrado->games_played) * 100;
+                    }
+                }
+            } else if ($player['name'] == $duoMatch->name2) {
+                if (empty($playersStats)) {
+                    $playersStats[] = new PlayerGeral(
+                        $player['name'],
+                        $singleMatch->games_played,
+                        $singleMatch->victories,
+                        ($singleMatch->victories / $singleMatch->games_played) * 100
+                    );
+                } else {
+
+                    //  BUSCAR SE JA EXISTE UM OBJETO DELE
+
+                    $busca = $player['name'];
+
+                    $resultado = array_filter($playersStats, function ($player) use ($busca) {
+                        return $player->name === $busca;
+                    });
+
+
+
+                    if (empty($resultado)) {
+                        $playersStats[] = new PlayerGeral(
+                            $player['name'],
+                            $singleMatch->games_played,
+                            $singleMatch->victories,
+                            ($singleMatch->victories / $singleMatch->games_played) * 100
+                        );
+                    } else {
+                        $player_encontrado = reset($resultado);
+                        $player_encontrado->games_played += $duoMatch->games_played;
+                        $player_encontrado->victories += $duoMatch->victories;
+                        $player_encontrado->win_rate = ($player_encontrado->victories / $player_encontrado->games_played) * 100;
+                    }
+                }
+            }
+        }
+    }
+
+    return $playersStats;
+}

@@ -1,4 +1,4 @@
-<a href="index.php">home</a>
+<a href="../index.php">home</a>
 <h1>Cadastro de jogador</h1>
   <?php 
     $url = "http://localhost:3000/player";
