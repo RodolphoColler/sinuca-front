@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,156 +29,172 @@
     color: #20de6e;
     margin: 0 10px;
   }
+
   .lose {
     color: #de2020;
     margin: 0 10px;
   }
+
   .winrate-gradient {
     width: 150px;
     height: 4px;
     border-radius: 10px;
   }
 </style>
+
 <body>
-  <a href="createPlayer.php">cadastrar jogador</a>
-  <a href="duo_match.php">Partidas em duplas</a>
-  <?php 
-      $url = "http://localhost:3000/player";
+  <a href="pages/create_player.php">cadastrar jogador</a><br>
+  <a href="pages/single_match.php">Partidas individuais</a><br>
+  <a href="pages/duo_match.php">Partidas em duplas</a><br>
+  <a href="pages/stats.php">stats</a><br>
 
-      $ch = curl_init($url);
 
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  <!-- 
+      <?php
+          $url = "http://localhost:3000/player";
 
-      $response = curl_exec($ch);
+          $ch = curl_init($url);
 
-      curl_close($ch);
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-      $data = json_decode($response);
+          $response = curl_exec($ch);
 
-      if (json_last_error() !== JSON_ERROR_NONE) {
+          curl_close($ch);
+
+          $data = json_decode($response);
+
+          if (json_last_error() !== JSON_ERROR_NONE) {
+            echo "Erro na decodificação JSON: " . json_last_error_msg();
+            exit;
+          }
+      ?>
+  -->
+
+  <!-- 
+    <h1>Selecione dois Jogadores para formar dupla</h1>
+      <form action="">
+        <select name="" id="">
+          <?php
+          foreach ($data->players as $player) {
+            echo "<option value=" . $player->id .  ">" . $player->name . "</option>";
+          }
+          ?>
+        </select>
+        <select name="" id="">
+          <?php
+          foreach ($data->players as $player) {
+            echo "<option value=" . $player->id .  ">" . $player->name . "</option>";
+          }
+          ?>
+        </select>
+        <button type="submit">Criar Dupla</button>
+      </form> 
+  -->
+
+  <!-- 
+    <?php
+        $url = "http://localhost:3000/single";
+
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $response = curl_exec($ch);
+
+        curl_close($ch);
+
+        $data = json_decode($response, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
           echo "Erro na decodificação JSON: " . json_last_error_msg();
           exit;
-      }
-  ?>
-
-  <h1>Selecione dois Jogadores para formar dupla</h1>
-  <form action="">
-    <select name="" id="">
-      <?php 
-        foreach($data->players as $player) {
-          echo "<option value=" .$player->id .  ">" . $player->name . "</option>";
         }
-      ?>
-    </select>
-    <select name="" id="">
-      <?php 
-        foreach($data->players as $player) {
-          echo "<option value=" .$player->id .  ">" . $player->name . "</option>";
+
+        class Leaderboard
+        {
+          public $name;
+          public $games_played;
+          public $victories;
+          public $loses;
+          public $win_rate;
+
+          public function __construct($name, $games_played, $victories, $loses, $win_rate)
+          {
+            $this->name = $name;
+            $this->games_played = $games_played;
+            $this->victories = $victories;
+            $this->loses = $loses;
+            $this->win_rate = $win_rate;
+          }
         }
-      ?>
-    </select>
-    <button type="submit">Criar Dupla</button>
-  </form>
 
-  <?php 
-      $url = "http://localhost:3000/single";
+        foreach ($data['singleMatch'] as $match) {
+          $playerOneId = $match['player_one_id'];
+          $playerTwoId = $match['player_two_id'];
+          $playerOneName = $match['player_one']['name'];
+          $playerTwoName = $match['player_two']['name'];
+          $result = $match['result'];
 
-      $ch = curl_init($url);
-
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-      $response = curl_exec($ch);
-
-      curl_close($ch);
-
-      $data = json_decode($response, true);
-
-      if (json_last_error() !== JSON_ERROR_NONE) {
-          echo "Erro na decodificação JSON: " . json_last_error_msg();
-          exit;
-      }
-
-      class Leaderboard {
-        public $name;
-        public $games_played;
-        public $victories;
-        public $loses;
-        public $win_rate;
-
-        public function __construct($name, $games_played, $victories, $loses, $win_rate) {
-          $this->name = $name;
-          $this->games_played = $games_played;
-          $this->victories = $victories;
-          $this->loses = $loses;
-          $this->win_rate = $win_rate;
-        }
-      }
-
-      foreach ($data['singleMatch'] as $match) {
-        $playerOneId = $match['player_one_id'];
-        $playerTwoId = $match['player_two_id'];
-        $playerOneName = $match['player_one']['name'];
-        $playerTwoName = $match['player_two']['name'];
-        $result = $match['result'];
-    
-        // Inicializa os jogadores se não existirem
-        if (!isset($playersStats[$playerOneId])) {
+          // Inicializa os jogadores se não existirem
+          if (!isset($playersStats[$playerOneId])) {
             $playersStats[$playerOneId] = [
-                'name' => $playerOneName,
-                'games_played' => 0,
-                'victories' => 0,
-                'loses' => 0
+              'name' => $playerOneName,
+              'games_played' => 0,
+              'victories' => 0,
+              'loses' => 0
             ];
-        }
+          }
 
-        if (!isset($playersStats[$playerTwoId])) {
+          if (!isset($playersStats[$playerTwoId])) {
             $playersStats[$playerTwoId] = [
-                'name' => $playerTwoName,
-                'games_played' => 0,
-                'victories' => 0,
-                'loses' => 0
+              'name' => $playerTwoName,
+              'games_played' => 0,
+              'victories' => 0,
+              'loses' => 0
             ];
-        }
+          }
 
-        // Atualiza as estatísticas
-        $playersStats[$playerOneId]['games_played']++;
-        $playersStats[$playerTwoId]['games_played']++;
+          // Atualiza as estatísticas
+          $playersStats[$playerOneId]['games_played']++;
+          $playersStats[$playerTwoId]['games_played']++;
 
-        if ($result === $playerOneId) {
+          if ($result === $playerOneId) {
             $playersStats[$playerOneId]['victories']++;
             $playersStats[$playerTwoId]['loses']++;
-        } else {
+          } else {
             $playersStats[$playerTwoId]['victories']++;
             $playersStats[$playerOneId]['loses']++;
+          }
         }
-    }
 
-    // Criando os objetos Leaderboard
-    $leaderboard = [];
-    foreach ($playersStats as $stats) {
-        $win_rate = $stats['games_played'] > 0 ? ($stats['victories'] / $stats['games_played']) * 100 : 0;
-        $leaderboard[] = new Leaderboard($stats['name'], $stats['games_played'], $stats['victories'], $stats['loses'], $win_rate);
-    }
+        // Criando os objetos Leaderboard
+        $leaderboard = [];
+        foreach ($playersStats as $stats) {
+          $win_rate = $stats['games_played'] > 0 ? ($stats['victories'] / $stats['games_played']) * 100 : 0;
+          $leaderboard[] = new Leaderboard($stats['name'], $stats['games_played'], $stats['victories'], $stats['loses'], $win_rate);
+        }
 
-    foreach ($leaderboard as $player) {
-      echo <<< HTML
-        <div class="player-stats">
-          <p class="player-name"> $player->name  </p>
-          <p class="victory"> $player->victories V </p>
-          <div class="winrate-gradient" style=" background: linear-gradient(
-            to right, 
-            #20de6e,
-            #20de6e $player->win_rate%,
-            #de2020 $player->win_rate%,
-            #de2020);"
-          ></div>
-          <p class="lose"> $player->loses D </p>
-          <p> Jogos: $player->games_played </p>
-          <p> Win-rate: $player->win_rate %</p>
-        </div>
-      HTML;
-    }
-  ?>
+        foreach ($leaderboard as $player) {
+          echo <<< HTML
+              <div class="player-stats">
+                <p class="player-name"> $player->name  </p>
+                <p class="victory"> $player->victories V </p>
+                <div class="winrate-gradient" style=" background: linear-gradient(
+                  to right, 
+                  #20de6e,
+                  #20de6e $player->win_rate%,
+                  #de2020 $player->win_rate%,
+                  #de2020);"
+                ></div>
+                <p class="lose"> $player->loses D </p>
+                <p> Jogos: $player->games_played </p>
+                <p> Win-rate: $player->win_rate %</p>
+              </div>
+            HTML;
+        }
+    ?> 
+  -->
 
 </body>
+
 </html>
