@@ -1,7 +1,8 @@
 <?php
 
 // # PEGAR DA API O JSON:
-function jsonDecode($url){
+function jsonDecode($url)
+{
     $ch = curl_init($url);
 
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -17,21 +18,25 @@ function jsonDecode($url){
 
     return json_decode($response, true);
 }
-function getPlayer(){
+function getPlayer()
+{
     $url = "http://localhost:3000/player";
-    return jsonDecode($url); 
+    return jsonDecode($url);
 }
-function getSingleMatch(){
+function getSingleMatch()
+{
     $url = "http://localhost:3000/single";
-    return jsonDecode($url); 
+    return jsonDecode($url);
 }
-function getDuoMatch(){
+function getDuoMatch()
+{
     $url = "http://localhost:3000/duoMatch";
-    return jsonDecode($url); 
+    return jsonDecode($url);
 }
 
 // # ALGORITIMOS DE CRIAR PARTIDAS [SINGLE/DUO]  
-function createSingleMatch(){
+function createSingleMatch()
+{
     $data = getSingleMatch();
 
     class OnePlayer
@@ -95,13 +100,15 @@ function createSingleMatch(){
     $onePlayer = [];
     foreach ($playersStats as $stats) {
         $win_rate = $stats['games_played'] > 0 ? ($stats['victories'] / $stats['games_played']) * 100 : 0;
+        $win_rate = number_format($win_rate, 2);
         $onePlayer[] = new onePlayer($stats['name'], $stats['games_played'], $stats['victories'], $stats['loses'], $win_rate);
     }
 
     return $onePlayer;
 }
 
-function createDuoMatch(){
+function createDuoMatch()
+{
     $data = getDuoMatch();
 
 
@@ -176,7 +183,7 @@ function createDuoMatch(){
     foreach ($duoStats as $stats) {
         //calcular winrate
         $win_rate = $stats['games_played'] > 0 ? ($stats['victories'] / $stats['games_played']) * 100 : 0;
-
+        $win_rate = number_format($win_rate, 2);
         //objeto Duos
         $Duos[] = new Duos($stats['name1'], $stats['name2'], $stats['games_played'], $stats['victories'], $stats['loses'], $win_rate);
     }
@@ -185,14 +192,16 @@ function createDuoMatch(){
 }
 
 // # ALGORITIMO DE EXIBIR ESTATÍSTICAS
-function getWinRateGeral(){
+function getWinRateGeral()
+{
     $data = getPlayer();
 
     $onePlayer = createSingleMatch();
     $Duos = createDuoMatch();
 
 
-    class PlayerGeral{
+    class PlayerGeral
+    {
         public $name;
         public $games_played;
         public $victories;
@@ -213,11 +222,13 @@ function getWinRateGeral(){
         foreach ($onePlayer as $singleMatch) {
             if ($player['name'] == $singleMatch->name) {
                 if (empty($playersStats)) {
+                    $win_rate = ($singleMatch->victories / $singleMatch->games_played) * 100;
+                    $win_rate = number_format($win_rate, 2);
                     $playersStats[] = new PlayerGeral(
                         $player['name'],
                         $singleMatch->games_played,
                         $singleMatch->victories,
-                        ($singleMatch->victories / $singleMatch->games_played) * 100
+                        $win_rate
                     );
                 } else {
 
@@ -230,11 +241,13 @@ function getWinRateGeral(){
                     });
 
                     if (empty($resultado)) {
+                        $win_rate = ($singleMatch->victories / $singleMatch->games_played) * 100;
+                        $win_rate = number_format($win_rate, 2);
                         $playersStats[] = new PlayerGeral(
                             $player['name'],
                             $singleMatch->games_played,
                             $singleMatch->victories,
-                            ($singleMatch->victories / $singleMatch->games_played) * 100
+                            $win_rate
                         );
                     }
                 }
@@ -245,11 +258,13 @@ function getWinRateGeral(){
 
             if ($player['name'] == $duoMatch->name1) {
                 if (empty($playersStats)) {
+                    $win_rate = ($duoMatch->victories / $duoMatch->games_played) * 100;
+                    $win_rate = number_format($win_rate, 2);
                     $playersStats[] = new PlayerGeral(
                         $player['name'],
-                        $singleMatch->games_played,
-                        $singleMatch->victories,
-                        ($singleMatch->victories / $singleMatch->games_played) * 100
+                        $duoMatch->games_played,
+                        $duoMatch->victories,
+                        $win_rate
                     );
                 } else {
 
@@ -265,26 +280,32 @@ function getWinRateGeral(){
 
 
                     if (empty($resultado)) {
+                        $win_rate = ($duoMatch->victories / $duoMatch->games_played) * 100;
+                        $win_rate = number_format($win_rate, 2);
                         $playersStats[] = new PlayerGeral(
                             $player['name'],
-                            $singleMatch->games_played,
-                            $singleMatch->victories,
-                            ($singleMatch->victories / $singleMatch->games_played) * 100
+                            $duoMatch->games_played,
+                            $duoMatch->victories,
+                            $win_rate
                         );
                     } else {
                         $player_encontrado = reset($resultado);
                         $player_encontrado->games_played += $duoMatch->games_played;
                         $player_encontrado->victories += $duoMatch->victories;
-                        $player_encontrado->win_rate = ($player_encontrado->victories / $player_encontrado->games_played) * 100;
+                        $win_rate = ($player_encontrado->victories / $player_encontrado->games_played) * 100;
+                        $win_rate = number_format($win_rate, 2);
+                        $player_encontrado->win_rate =  $win_rate;
                     }
                 }
             } else if ($player['name'] == $duoMatch->name2) {
                 if (empty($playersStats)) {
+                    $win_rate = ($duoMatch->victories / $duoMatch->games_played) * 100;
+                    $win_rate = number_format($win_rate, 2);
                     $playersStats[] = new PlayerGeral(
                         $player['name'],
-                        $singleMatch->games_played,
-                        $singleMatch->victories,
-                        ($singleMatch->victories / $singleMatch->games_played) * 100
+                        $duoMatch->games_played,
+                        $duoMatch->victories,
+                        $win_rate
                     );
                 } else {
 
@@ -299,17 +320,21 @@ function getWinRateGeral(){
 
 
                     if (empty($resultado)) {
+                        $win_rate = ($duoMatch->victories / $duoMatch->games_played) * 100;
+                        $win_rate = number_format($win_rate, 2);
                         $playersStats[] = new PlayerGeral(
                             $player['name'],
-                            $singleMatch->games_played,
-                            $singleMatch->victories,
-                            ($singleMatch->victories / $singleMatch->games_played) * 100
+                            $duoMatch->games_played,
+                            $duoMatch->victories,
+                            $win_rate
                         );
                     } else {
                         $player_encontrado = reset($resultado);
                         $player_encontrado->games_played += $duoMatch->games_played;
                         $player_encontrado->victories += $duoMatch->victories;
-                        $player_encontrado->win_rate = ($player_encontrado->victories / $player_encontrado->games_played) * 100;
+                        $win_rate = ($player_encontrado->victories / $player_encontrado->games_played) * 100;
+                        $win_rate = number_format($win_rate, 2);
+                        $player_encontrado->win_rate =  $win_rate;
                     }
                 }
             }

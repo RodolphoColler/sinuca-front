@@ -1,7 +1,7 @@
 <a href="../index.php">home</a>
 <?php
 
-    /*
+/*
         //SINGLE EXIBIÇÃO:
         include_once("./single_match.php");
 
@@ -110,10 +110,26 @@
         // }
     */
 
-    include_once('../services/functions.php');
-    
-    $playersStats =getWinRateGeral(); 
-    var_dump($playersStats);
+include_once('../services/functions.php');
 
-    
+$playersStats = getWinRateGeral();
+// var_dump($playersStats);
+
+echo '<h2>Player Win-rate All</h2>';
+foreach ($playersStats as $player) {
+    echo <<< HTML
+            <div class="player-stats winrate-all">
+                <p>$player->name</p>
+                <div class="winrate-gradient" style=" background: linear-gradient(
+                    to right, 
+                    #20de6e,
+                    #20de6e $player->win_rate%,
+                    #de2020 $player->win_rate%,
+                    #de2020);"
+                ></div>
+                <p> Win-rate: $player->win_rate %</p> 
+            </div>
+        HTML;
+}
+
 ?>
