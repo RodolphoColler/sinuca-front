@@ -45,8 +45,8 @@
 
 <?php
     include_once('../services/functions.php');
-    $leaderboard = createSingleMatch();
-    foreach ($leaderboard as $player) {
+    $onePlayer = createSingleMatch();
+    foreach ($onePlayer as $player) {
         echo <<< HTML
           <div class="player-stats">
             <p class="player-name"> $player->name  </p>

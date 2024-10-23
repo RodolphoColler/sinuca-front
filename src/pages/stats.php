@@ -114,4 +114,6 @@
     
     $playersStats =getWinRateGeral(); 
     var_dump($playersStats);
+
+    
 ?>

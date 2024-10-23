@@ -34,7 +34,7 @@ function getDuoMatch(){
 function createSingleMatch(){
     $data = getSingleMatch();
 
-    class Leaderboard
+    class OnePlayer
     {
         public $name;
         public $games_played;
@@ -91,14 +91,14 @@ function createSingleMatch(){
         }
     }
 
-    // Criando os objetos Leaderboard
-    $leaderboard = [];
+    // Criando os objetos onePlayer
+    $onePlayer = [];
     foreach ($playersStats as $stats) {
         $win_rate = $stats['games_played'] > 0 ? ($stats['victories'] / $stats['games_played']) * 100 : 0;
-        $leaderboard[] = new Leaderboard($stats['name'], $stats['games_played'], $stats['victories'], $stats['loses'], $win_rate);
+        $onePlayer[] = new onePlayer($stats['name'], $stats['games_played'], $stats['victories'], $stats['loses'], $win_rate);
     }
 
-    return $leaderboard;
+    return $onePlayer;
 }
 
 function createDuoMatch(){
@@ -188,7 +188,7 @@ function createDuoMatch(){
 function getWinRateGeral(){
     $data = getPlayer();
 
-    $leaderboard = createSingleMatch();
+    $onePlayer = createSingleMatch();
     $Duos = createDuoMatch();
 
 
@@ -210,7 +210,7 @@ function getWinRateGeral(){
     $playersStats = [];
 
     foreach ($data['players'] as $player) {
-        foreach ($leaderboard as $singleMatch) {
+        foreach ($onePlayer as $singleMatch) {
             if ($player['name'] == $singleMatch->name) {
                 if (empty($playersStats)) {
                     $playersStats[] = new PlayerGeral(
