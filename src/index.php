@@ -47,6 +47,8 @@
   <a href="pages/single_match.php">Partidas individuais</a><br>
   <a href="pages/duo_match.php">Partidas em duplas</a><br>
   <a href="pages/stats.php">stats</a><br>
+  <a href="services/matchup-solo.php">solo</a>
+  <a href="services/matchup-duo.php">duo</a>
 
 
   <!-- 
