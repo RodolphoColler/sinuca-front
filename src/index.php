@@ -39,8 +39,9 @@
   }
 </style>
 <body>
-  <a href="createPlayer.php">cadastrar jogador</a>
-  <a href="duo_match.php">Partidas em duplas</a>
+  <a href="./pages/create_player.php">cadastrar jogador</a>
+  <a href="./pages/duo_match.php">Partidas em duplas</a>
+  <a href="./pages/create_duo.php">cadastrar duplas</a>
   <?php 
       $url = "http://localhost:3000/player";
 
@@ -60,24 +61,7 @@
       }
   ?>
 
-  <h1>Selecione dois Jogadores para formar dupla</h1>
-  <form action="">
-    <select name="" id="">
-      <?php 
-        foreach($data->players as $player) {
-          echo "<option value=" .$player->id .  ">" . $player->name . "</option>";
-        }
-      ?>
-    </select>
-    <select name="" id="">
-      <?php 
-        foreach($data->players as $player) {
-          echo "<option value=" .$player->id .  ">" . $player->name . "</option>";
-        }
-      ?>
-    </select>
-    <button type="submit">Criar Dupla</button>
-  </form>
+
 
   <?php 
       $url = "http://localhost:3000/single";
