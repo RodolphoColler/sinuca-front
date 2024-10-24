@@ -342,8 +342,10 @@ function getWinRateGeral()
     }
 
     return $playersStats;
-}
+} 
 
+// # MATCH-UPS:
+ 
 function SearchMatchSolo($data, $p1, $p2) {
     $matchup = [];
     foreach($data->singleMatch as $match) {
@@ -406,7 +408,6 @@ function SearchMatchDuo($data, $duo_one_id, $duo_two_id) {
     
     return $matchup;
 }
-
 
 function CreateMatchupDuo($data) {
     $matchups = [];
