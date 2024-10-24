@@ -118,7 +118,7 @@ $playersStats = getWinRateGeral();
 echo '<h2>Player Win-rate All</h2>';
 foreach ($playersStats as $player) {
     echo <<< HTML
-            <div class="player-stats winrate-all">
+            <div class="player-stats winrate-all" style="display:flex; gap:15px;">
                 <p>$player->name</p>
                 <div class="winrate-gradient" style=" background: linear-gradient(
                     to right, 
