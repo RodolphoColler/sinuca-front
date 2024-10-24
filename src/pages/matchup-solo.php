@@ -1,4 +1,4 @@
-<?php include('functions.php') ?>
+<?php include('../services/functions.php') ?>
 
 <?php 
     $url = "http://localhost:3000/single";
@@ -13,24 +13,7 @@
         exit;
     }
 
-    class MatchupSolo {
-        public $player1;
-        public $player2;
-        public $p1Win;
-        public $p1Lose;
-        public $p2Win;
-        public $p2Lose;
     
-        function __construct($player1, $player2, $p1Win, $p1Lose, $p2Win, $p2Lose)
-        {
-            $this->player1 = $player1;
-            $this->player2 = $player2;
-            $this->p1Win = $p1Win;
-            $this->p1Lose = $p1Lose;
-            $this->p2Win = $p2Win;
-            $this->p2Lose = $p2Lose;
-        }
-    }
 
     $matchups = CreateMatchupSolo($data);
     foreach ($matchups as $matchup) {
@@ -38,5 +21,10 @@
         echo "<div><strong>{$matchup->player1}:</strong> Vitórias: {$matchup->p1Win} - Derrotas: {$matchup->p1Lose}</div>";
         echo "<div><strong>{$matchup->player2}:</strong> Vitórias: {$matchup->p2Win} - Derrotas: {$matchup->p2Lose}</div>";
         echo "<br>";
+
+        echo "<div>| Winrate P1: " . ($matchup->p1Win/($matchup->p1Win+$matchup->p1Lose))*100 . "%" . "</div><br>";
+        echo "<div>| Winrate P2: " . ($matchup->p2Win/($matchup->p2Win+$matchup->p2Lose))*100 . "%" . "</div><br>";
     }
+
+    
 ?>

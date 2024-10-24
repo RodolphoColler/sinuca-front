@@ -1,61 +1,107 @@
 <?php
 
-// # PEGAR DA API O JSON:
-function jsonDecode($url)
+// # CLASSES: 
+class OnePlayer
 {
-    $ch = curl_init($url);
+    public $name;
+    public $games_played;
+    public $victories;
+    public $loses;
+    public $win_rate;
 
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-    $response = curl_exec($ch);
-
-    curl_close($ch);
-
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        echo "Erro na decodificação JSON: " . json_last_error_msg();
-        exit;
+    public function __construct($name, $games_played, $victories, $loses, $win_rate)
+    {
+        $this->name = $name;
+        $this->games_played = $games_played;
+        $this->victories = $victories;
+        $this->loses = $loses;
+        $this->win_rate = $win_rate;
     }
+}
 
-    return json_decode($response, true);
-}
-function getPlayer()
+class MatchupSolo
 {
-    $url = "http://localhost:3000/player";
-    return jsonDecode($url);
+    public $player1;
+    public $player2;
+    public $p1Win;
+    public $p1Lose;
+    public $p2Win;
+    public $p2Lose;
+
+    function __construct($player1, $player2, $p1Win, $p1Lose, $p2Win, $p2Lose)
+    {
+        $this->player1 = $player1;
+        $this->player2 = $player2;
+        $this->p1Win = $p1Win;
+        $this->p1Lose = $p1Lose;
+        $this->p2Win = $p2Win;
+        $this->p2Lose = $p2Lose;
+    }
 }
-function getSingleMatch()
+class MatchupDuo
 {
-    $url = "http://localhost:3000/single";
-    return jsonDecode($url);
+    public $duo1;
+    public $duo2;
+    public $duo1Win;
+    public $duo1Lose;
+    public $duo2Win;
+    public $duo2Lose;
+
+    function __construct($duo1, $duo2, $duo1Win, $duo1Lose, $duo2Win, $duo2Lose)
+    {
+        $this->duo1 = $duo1;
+        $this->duo2 = $duo2;
+        $this->duo1Win = $duo1Win;
+        $this->duo1Lose = $duo1Lose;
+        $this->duo2Win = $duo2Win;
+        $this->duo2Lose = $duo2Lose;
+    }
 }
-function getDuoMatch()
+
+class Duos
 {
-    $url = "http://localhost:3000/duoMatch";
-    return jsonDecode($url);
+    public $name1;
+    public $name2;
+    public $games_played;
+    public $victories;
+    public $loses;
+    public $win_rate;
+
+    public function __construct($name1, $name2, $games_played, $victories, $loses, $win_rate)
+    {
+        $this->name1 = $name1;
+        $this->name2 = $name2;
+        $this->games_played = $games_played;
+        $this->victories = $victories;
+        $this->loses = $loses;
+        $this->win_rate = $win_rate;
+    }
 }
+
+class PlayerGeral
+{
+    public $name;
+    public $games_played;
+    public $victories;
+    public $win_rate;
+
+    public function __construct($name, $games_played, $victories, $win_rate)
+    {
+        $this->name = $name;
+        $this->games_played = $games_played;
+        $this->victories = $victories;
+        $this->win_rate = $win_rate;
+    }
+}
+
+include ("requests.php");
 
 // # ALGORITIMOS DE CRIAR PARTIDAS [SINGLE/DUO]  
 function createSingleMatch()
 {
     $data = getSingleMatch();
 
-    class OnePlayer
-    {
-        public $name;
-        public $games_played;
-        public $victories;
-        public $loses;
-        public $win_rate;
 
-        public function __construct($name, $games_played, $victories, $loses, $win_rate)
-        {
-            $this->name = $name;
-            $this->games_played = $games_played;
-            $this->victories = $victories;
-            $this->loses = $loses;
-            $this->win_rate = $win_rate;
-        }
-    }
 
     foreach ($data['singleMatch'] as $match) {
         $playerOneId = $match['player_one_id'];
@@ -112,25 +158,7 @@ function createDuoMatch()
     $data = getDuoMatch();
 
 
-    class Duos
-    {
-        public $name1;
-        public $name2;
-        public $games_played;
-        public $victories;
-        public $loses;
-        public $win_rate;
 
-        public function __construct($name1, $name2, $games_played, $victories, $loses, $win_rate)
-        {
-            $this->name1 = $name1;
-            $this->name2 = $name2;
-            $this->games_played = $games_played;
-            $this->victories = $victories;
-            $this->loses = $loses;
-            $this->win_rate = $win_rate;
-        }
-    }
 
     foreach ($data['duoMatch'] as $duoMatch) {
 
@@ -200,21 +228,7 @@ function getWinRateGeral()
     $Duos = createDuoMatch();
 
 
-    class PlayerGeral
-    {
-        public $name;
-        public $games_played;
-        public $victories;
-        public $win_rate;
 
-        public function __construct($name, $games_played, $victories, $win_rate)
-        {
-            $this->name = $name;
-            $this->games_played = $games_played;
-            $this->victories = $victories;
-            $this->win_rate = $win_rate;
-        }
-    }
 
     $playersStats = [];
 
@@ -342,14 +356,15 @@ function getWinRateGeral()
     }
 
     return $playersStats;
-} 
+}
 
 // # MATCH-UPS:
- 
-function SearchMatchSolo($data, $p1, $p2) {
+
+function SearchMatchSolo($data, $p1, $p2)
+{
     $matchup = [];
-    foreach($data->singleMatch as $match) {
-        if($match->player_one->name == $p1 && $match->player_two->name == $p2) {
+    foreach ($data->singleMatch as $match) {
+        if ($match->player_one->name == $p1 && $match->player_two->name == $p2) {
             $matchup[] = $match->result;
         }
     }
@@ -357,8 +372,9 @@ function SearchMatchSolo($data, $p1, $p2) {
     return $matchup;
 }
 
-function CreateMatchupSolo($data) {
-    foreach($data->singleMatch as $match) {
+function CreateMatchupSolo($data)
+{
+    foreach ($data->singleMatch as $match) {
         $p1 = $match->player_one->name;
         $p2 = $match->player_two->name;
         $p1Win = 0;
@@ -395,21 +411,24 @@ function CreateMatchupSolo($data) {
     return $matchups;
 }
 
-function SearchMatchDuo($data, $duo_one_id, $duo_two_id) {
+function SearchMatchDuo($data, $duo_one_id, $duo_two_id)
+{
     $matchup = [];
-    
+
     foreach ($data->duoMatch as $match) {
         // Verifica se a combinação dos IDs das duplas é encontrada
-        if (($match->duo_one_id == $duo_one_id && $match->duo_two_id == $duo_two_id) || 
-            ($match->duo_one_id == $duo_two_id && $match->duo_two_id == $duo_one_id)) {
+        if (($match->duo_one_id == $duo_one_id && $match->duo_two_id == $duo_two_id) ||
+            ($match->duo_one_id == $duo_two_id && $match->duo_two_id == $duo_one_id)
+        ) {
             $matchup[] = $match->result;
         }
     }
-    
+
     return $matchup;
 }
 
-function CreateMatchupDuo($data) {
+function CreateMatchupDuo($data)
+{
     $matchups = [];
     $processedPairs = [];
 

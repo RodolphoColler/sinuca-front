@@ -1,4 +1,4 @@
-<?php include('functions.php') ?>
+<?php include('../services/functions.php') ?>
 
 <?php 
     $url = "http://localhost:3000/duomatch";
@@ -13,23 +13,7 @@
         exit;
     }
 
-    class MatchupDuo {
-        public $duo1;
-        public $duo2;
-        public $duo1Win;
-        public $duo1Lose;
-        public $duo2Win;
-        public $duo2Lose;
     
-        function __construct($duo1, $duo2, $duo1Win, $duo1Lose, $duo2Win, $duo2Lose) {
-            $this->duo1 = $duo1;
-            $this->duo2 = $duo2;
-            $this->duo1Win = $duo1Win;
-            $this->duo1Lose = $duo1Lose;
-            $this->duo2Win = $duo2Win;
-            $this->duo2Lose = $duo2Lose;
-        }
-    }
 
     $matchups = CreateMatchupDuo($data);
     foreach ($matchups as $matchup) {
@@ -37,5 +21,8 @@
         echo "<div><strong>{$matchup->duo1}:</strong> Vitórias: {$matchup->duo1Win} - Derrotas: {$matchup->duo1Lose}</div>";
         echo "<div><strong>{$matchup->duo2}:</strong> Vitórias: {$matchup->duo2Win} - Derrotas: {$matchup->duo2Lose}</div>";
         echo "<br>";
+
+        echo "<div>| Winrate Duo1: " . ($matchup->duo1Win/($matchup->duo1Win+$matchup->duo1Lose))*100 . "%" . "</div><br>";
+        echo "<div>| Winrate Duo2: " . ($matchup->duo2Win/($matchup->duo2Win+$matchup->duo2Lose))*100 . "%" . "</div><br>";
     }
 ?>
